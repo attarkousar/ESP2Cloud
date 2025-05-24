@@ -579,5 +579,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 #My files
-.docs/*
-.iotcerts/*
+docs/*
+iotcerts/*
