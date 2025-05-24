@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Live Sensor Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/uplot@1.6.20/dist/uPlot.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg-color: #0e0f11;
+      --card-bg: #1a1d22;
+      --accent: #00ffe0;
+      --danger: #ff4d4f;
+      --success: #4caf50;
+      --text: #e0e0e0;
+      --dim-text: #888;
+      --font: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    .page-title {
+      text-align: center;
+      padding: 1rem;
+      font-size: 2rem;
+      font-weight: 600;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      padding: 2rem 1rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .section {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.05);
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.75rem;
+      color: var(--accent);
+    }
+
+    .button-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .indicator {
+      background: #141619;
+      border: 1px solid #2c2f34;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(0,255,255,0.03);
+      width: 80%;
+      max-width: 500px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .indicator:hover {
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.1);
+    }
+
+    .led {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-left: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .on {
+      background-color: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .off {
+      background-color: var(--danger);
+      box-shadow: 0 0 10px var(--danger);
+    }
+
+    #chart {
+      width: 100%;
+      height: 500px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .uplot {
+      background-color: var(--card-bg);
+      color: var(--text);
+    }
+
+    .uplot .u-legend {
+      background-color: #2a2d31;
+      color: #eee;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .indicator {
+        width: 95%;
+        font-size: 0.9rem;
+      }
+      .section-title {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-title">Live Sensor Dashboard</div>
+
+  <div class="main-container">
+    <!-- Potentiometer Section -->
+    <div class="section">
+      <h2 class="section-title">Live Potentiometer Graph</h2>
+      <div id="chart"></div>
+    </div>
+
+    <!-- Button Section -->
+    <div class="section">
+      <h2 class="section-title">Live Button Reading</h2>
+      <div class="button-panel">
+        <div class="indicator">
+          <strong>Button 1</strong>
+          <span id="led1" class="led off"></span>
+          <div><small class="text-muted">Last Pressed: <span id="ts1">--</span></small></div>
+        </div>
+        <div class="indicator">
+          <strong>Button 2</strong>
+          <span id="led2" class="led off"></span>
+          <div><small class="text-muted">Last Pressed: <span id="ts2">--</span></small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/uplot@1.6.20/dist/uPlot.iife.min.js"></script>
+
+  <script>
+    function formatTimestamp(tsArray) {
+      const d = new Date(Date.UTC(...tsArray));
+      return d.toLocaleString();
+    }
+
+    // --- BUTTON FETCH ---
+    setInterval(async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:5002/get-data/button");
+        const json = await res.json();
+        if (!json.message) return;
+
+        const parsed = JSON.parse(json.message);
+        const tsArray = parsed.ts.ts;
+        const timestampStr = formatTimestamp(tsArray);
+
+        const button1 = parsed.sensor_value.find(d => d.name === "button1")?.value || 0;
+        const button2 = parsed.sensor_value.find(d => d.name === "button2")?.value || 0;
+
+        document.getElementById("led1").className = "led " + (button1 ? "on" : "off");
+        document.getElementById("led2").className = "led " + (button2 ? "on" : "off");
+
+        if (button1) document.getElementById("ts1").textContent = timestampStr;
+        if (button2) document.getElementById("ts2").textContent = timestampStr;
+
+      } catch (err) {
+        console.error("Button fetch error:", err);
+      }
+    }, 100);
+
+    // --- CHART SETUP ---
+    const chartEl = document.getElementById("chart");
+    const opts = {
+      width: chartEl.clientWidth,
+      height: 500,
+      title: "Pot1 & Pot2 (Volts)",
+      scales: {
+        x: { time: true },
+        y: { range: [0, 3.3] }
+      },
+      axes: [
+        {
+          stroke: "#888",
+          grid: { stroke: "#333" },
+          label: "Time",
+          size: 100,
+          labelSize: 20,
+          labelGap: 10,
+          values: (u, ticks) => ticks.map(t => new Date(t * 1000).toLocaleTimeString([], { hour12: false })),
+          rotate: 40,
+        },
+        {
+          stroke: "#888",
+          grid: { stroke: "#333" },
+          label: "Voltage (V)",
+        }
+      ],
+      series: [
+        {},
+        {
+          label: "Pot1 (V)",
+          stroke: "#00ffe0",
+          width: 2,
+          fill: "rgba(0,255,255,0.1)",
+          points: { show: false },
+          paths: uPlot.paths.spline()
+        },
+        {
+          label: "Pot2 (V)",
+          stroke: "#ff00ff",
+          width: 2,
+          fill: "rgba(255,0,255,0.1)",
+          points: { show: false },
+          paths: uPlot.paths.spline()
+        }
+      ]
+    };
+
+    const uplotData = [[], [], []];
+    const uplot = new uPlot(opts, uplotData, chartEl);
+    const MAX_POINTS = 10;
+
+    function fetchDataAndUpdate() {
+      fetch("http://127.0.0.1:5002/get-data/pot")
+        .then(res => res.json())
+        .then(data => {
+          const parsed = JSON.parse(data.message);
+          const tsArray = parsed.ts.ts;
+          const timestamp = Date.UTC(...tsArray) / 1000;
+
+          const pot1 = parsed.sensor_value.find(p => p.name === "pot1")?.value ?? 0;
+          const pot2 = parsed.sensor_value.find(p => p.name === "pot2")?.value ?? 0;
+
+          uplotData[0].push(timestamp);
+          uplotData[1].push(pot1);
+          uplotData[2].push(pot2);
+
+          if (uplotData[0].length > MAX_POINTS) {
+            uplotData.forEach(arr => arr.shift());
+          }
+
+          uplot.setData(uplotData);
+        })
+        .catch(err => console.error("Pot fetch error:", err));
+    }
+
+    setInterval(fetchDataAndUpdate, 20);
+
+    window.addEventListener("resize", () => {
+      uplot.setSize({ width: chartEl.clientWidth, height: 500 });
+    });
+  </script>
+</body>
+</html>
