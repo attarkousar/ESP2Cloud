@@ -581,3 +581,4 @@ FodyWeavers.xsd
 #My files
 docs/*
 iotcerts/*
+esp32_client/config.py

@@ -1,12 +1,10 @@
-import os
-from dotenv import load_dotenv, dotenv_values
+from config import MY_SERVER_IP, SERVER_PORT_NUM # Make sure you create file named "Config.py" save these variable and thier value
 import time
 import socket
 import sys
 
-load_dotenv()
-SERVER_IP   = os.getenv("MY_SERVER_IP") #My laptop IPv4 address, it might not be static so check it before 
-SERVER_PORT = int(os.getenv("SERVER_PORT_NUM"))
+SERVER_IP   = MY_SERVER_IP #My laptop IPv4 address, it might not be static so check it before 
+SERVER_PORT = SERVER_PORT_NUM
 
 # --- Data publisher to send data to server ---
 class DataPublisherSocket:

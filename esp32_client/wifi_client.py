@@ -1,12 +1,10 @@
-import os
-from dotenv import load_dotenv, dotenv_values
+from config import MY_SSID, MY_PASSWORD # Make sure you create file named "Config.py" save these variable and thier value
 import network
 import time
 
-load_dotenv()
 #--- Wifi Configuration ---
-SSID        = os.getenv("MY_WIFI_SSID") #My Wifi Name, change according to which wifi you connect to
-PASSWORD    = os.getenv("MY_WIFI_PASSWORD") #My Wifi password, change according to which wifi you connect to
+SSID        = MY_SSID #My Wifi Name, change according to which wifi you connect to
+PASSWORD    = MY_PASSWORD #My Wifi password, change according to which wifi you connect to
 #--- Wifi Configuration ---
 
 
