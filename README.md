@@ -171,8 +171,7 @@ pip install Flask-Cors
 
 ## 📸 System Diagram
 
-![System Architecture](Achitecture of system.png)
+![System Architecture](<Achitecture of system.png>)
 
-
-![Circuit Diagram](circuit diagram.png)
+![Circuit Diagram](<circuit diagram.png>)
 
