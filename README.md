@@ -1,17 +1,18 @@
-# ESP2Cloud
 
-A complete end-to-end IoT project that collects sensor data on an ESP32 device using MicroPython, sends it via TCP sockets to a laptop server, and publishes it to AWS IoT Core using MQTT with TLS encryption. The data is stored in **Timestream** and visualized in **Grafana**.
+# 🌩️ ESP2Cloud: End-to-End IoT with ESP32 & AWS
+
+A complete Internet of Things (IoT) system that collects real-time sensor data from an ESP32 device using MicroPython, sends it via a TCP socket to a Python gateway on a laptop, and forwards it to AWS IoT Core using MQTT over TLS. The data is stored in **Timestream** and visualized in **Grafana**.
 
 ---
 
 ## 📦 Features
 
-- ESP32 MicroPython TCP Client
-- Python Socket Server on Laptop
-- MQTT over TLS to AWS IoT Core
-- AWS Rule for Timestream integration
-- Real-time dashboards with Grafana
-- Secure, scalable, and reliable data flow
+- 🔌 ESP32 MicroPython TCP Client
+- 💻 Python TCP Server on Laptop
+- 🔐 MQTT over TLS to AWS IoT Core
+- 🗃️ AWS Rule for Timestream integration
+- 📊 Real-time dashboards with Grafana
+- 🔁 Secure, scalable, and reliable data flow
 
 ---
 
@@ -29,6 +30,7 @@ graph LR
     Laptop -- MQTT + TLS --> AWS
     AWS -- Rule --> DB
     DB -- Query --> Grafana
+```
 
 ---
 
@@ -36,14 +38,13 @@ graph LR
 
 ### 1. 🧠 Prerequisites
 
-* ESP32 with MicroPython firmware
-* Laptop with Python 3.x
-* AWS IoT Core set up with:
-
-  * Thing, certificates, policy
-  * Rule to forward MQTT to Timestream
-* Grafana (hosted or local)
-* Timestream database and table
+- ESP32 with MicroPython firmware
+- Laptop with Python 3.x installed
+- AWS IoT Core set up with:
+  - IoT Thing, certificate, and policy
+  - IoT Rule to forward MQTT data to Timestream
+- AWS Timestream database and table
+- Grafana (hosted or local setup)
 
 ---
 
@@ -51,126 +52,169 @@ graph LR
 
 ```
 .
-├── esp32_client/ # MicroPython code for ESP32
+├── esp32_client/                    # MicroPython code for ESP32
 │   ├── config.py
-│   ├── data_pusher.py # TCP socket client code
-│   ├── input_reader.py     
+│   ├── data_pusher.py              # TCP socket client code
+│   ├── input_reader.py
 │   ├── main.py
 │   ├── sensor.py
-│   └── wifi_client.py #wifi setup code
-├── gateway/
+│   └── wifi_client.py              # Wi-Fi setup code
+├── gateway/                        # Python server & MQTT publisher
 │   ├── gateway.py
-│   └── mqtt.py    # Python TCP server + MQTT publisher
-├── cloud/
-│   ├── api_server.py # Webpage created to run locally using Flask
+│   └── mqtt.py
+├── cloud/                          # Optional Flask-based MQTT viewer
+│   ├── api_server.py
 │   ├── server.py
-│   └── mqtt.py    # Python TCP server + MQTT publisher
-├── iotcerts/
+│   └── mqtt.py
+├── iotcerts/                       # AWS IoT certificates
 │   ├── root-CA.crt
 │   ├── device-cert.pem.crt
 │   └── private.pem.key
-├── ESP32_GENERIC-20250415-v1.25.0.
-├── Achitecture of system.png               # System architecture
-├── .env  #environment variables for sensitive information
-├── cp.bat
-├── flash_esp.bat
+├── ESP32_GENERIC-20250415-v1.25.0.bin
+├── Architecture of system.png
+├── circuit diagram.png
+├── .env                            # Environment variables (not committed)
+├── cp.bat                          # Copy files to ESP32
+├── flash_esp.bat                   # Flash MicroPython to ESP32
 └── README.md
 ```
 
 ---
 
-### 3. 📡 ESP32 Setup
-Install dependencies:
+## 📡 ESP32 Setup
 
-```
+1. Install MicroPython tools:
+
+```bash
 pip install esptool
 pip install mpremote
 ```
-* Flash MicroPython firmware to ESP32 using `flash_esp.bat`
-* Upload Micropython files using `cp.bat`
-* Update `HOST`, `PORT`, and Wi-Fi credentials in the code
-* Run socket client using command ` mpremote connect COM5 run .\esp32_client\main.py`
+
+2. Flash MicroPython to ESP32:
+
+```bash
+flash_esp.bat
+```
+
+3. Upload project files to ESP32:
+
+```bash
+cp.bat
+```
+
+4. Run the socket client on ESP32:
+
+```bash
+mpremote connect COM5 run esp32_client/main.py
+```
+
+> 🔧 Update `HOST`, `PORT`, and Wi-Fi credentials in `config.py`.
 
 ---
 
-### 4. 🖥️ Python Server (Laptop)
+## 🖥️ Laptop: TCP Server + MQTT Publisher
 
-Install dependencies:
+1. Install Python libraries:
 
 ```bash
 pip install paho-mqtt
 ```
 
-Run:
+2. Run the Python TCP server and MQTT publisher:
 
 ```bash
-python .\gateway\gateway.py
+python gateway/gateway.py
 ```
 
-Make sure to set:
+Make sure to configure:
 
-* Your **AWS IoT endpoint**
-* Paths to **certs**
-* Correct **MQTT topic** and **port (8883)**
+- Your **AWS IoT endpoint**
+- Path to AWS **certificates**
+- MQTT **topic**, **QoS**, and **port 8883**
+
 ---
-### (Optional) 5. 🖥️ MQTT Subscriber (Localhost) 
-Install dependencies:
+
+## 🖥️ Optional: MQTT Subscriber (Localhost UI)
+
+1. Install Flask dependencies:
 
 ```bash
-pip install Flask
+pip install Flask 
 pip install Flask-Cors
 ```
+
+2. Run Flask API server (for debug/testing):
+
+```bash
+python cloud/api_server.py
+```
+
 ---
 
 ## 🔐 Security
 
-* TLS v1.2 encryption between Laptop and AWS IoT Core
-* Uses official **Amazon Root CA** and device certificates
-* ESP32 TCP connection is within a local trusted network
+- ✅ TLS v1.2 encryption between Laptop and AWS IoT Core
+- ✅ Amazon Root CA and valid device certificates used
+- ✅ ESP32 TCP client is confined to local Wi-Fi network
 
 ---
 
-## 📊 Visualization
+## 📊 Visualization with Grafana
 
-* AWS Timestream stores the time-series sensor data
-* Grafana queries Timestream with SQL-like language
-* Dashboards update in real time
+- AWS Timestream stores structured sensor data
+- Grafana queries Timestream using SQL-like language
+- Dashboards reflect near real-time sensor values
 
 ---
 
 ## ❌ Challenges Faced
 
-* ESP32 Wi-Fi drops causing socket failures
-* Manual encoding/decoding over TCP socket
-* TLS handshake and cert issues with AWS IoT
-* JSON structure mismatches for Timestream ingestion
+- 📶 ESP32 Wi-Fi instability leading to socket drops
+- 🔡 Manual encoding/decoding of JSON via TCP
+- 🔐 AWS TLS handshake and certificate mismatches
+- 📦 Data formatting issues for Timestream ingestion
 
 ---
 
 ## 🧠 Future Improvements
 
-* Add retry logic and buffering on ESP32
-* Implement bi-directional MQTT for control commands
-* Use NTP sync or timestamp injection for better timing
-* Deploy socket server to a Raspberry Pi for 24/7 operation
+- 🔁 Add buffering and retry on ESP32
+- 🔄 Enable bi-directional MQTT for remote control
+- 🕒 Sync ESP32 time using NTP
+- 🍓 Migrate Python server to Raspberry Pi for 24/7 operation
 
 ---
 
-## 🛠 Tools & Technologies
+## 🛠 Tools & Technologies Used
 
-* MicroPython
-* Python 3.x
-* AWS IoT Core
-* MQTT (TLS-secured)
-* AWS Timestream
-* Grafana
-* TCP/IP, Wi-Fi
+| Component        | Technology              |
+|------------------|--------------------------|
+| Device Firmware  | MicroPython              |
+| TCP/IP Client    | socket, _thread (ESP32)  |
+| TCP Server       | Python socket            |
+| MQTT             | Eclipse Paho + TLS       |
+| AWS Cloud        | IoT Core + Timestream    |
+| Visualization    | Grafana                  |
+| Optional UI      | Flask + Flask-Cors       |
 
 ---
 
-## 📸 System Diagram
+## 📦 Dependencies
 
-![System Architecture](<Achitecture of system.png>)
+Install all PC-side libraries via `pip`:
 
-![Circuit Diagram](<circuit diagram.png>)
+```bash
+pip install esptool mpremote paho-mqtt Flask Flask-Cors
+```
 
+Note: ESP32 libraries like `machine`, `network`, `_thread`, `socket` (MicroPython) do **not** require `pip install`.
+
+---
+
+## 📸 System Diagrams
+
+![System Architecture](Architecture of system.png)
+
+![Circuit Diagram](circuit%20diagram.png)
+
+---
