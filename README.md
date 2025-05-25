@@ -29,7 +29,6 @@ graph LR
     Laptop -- MQTT + TLS --> AWS
     AWS -- Rule --> DB
     DB -- Query --> Grafana
-````
 
 ---
 
