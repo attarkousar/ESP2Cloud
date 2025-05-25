@@ -214,8 +214,17 @@ Note: ESP32 libraries like `machine`, `network`, `_thread`, `socket` (MicroPytho
 
 ## 📸 System Diagrams
 
-![System Architecture](Architecture of system.png)
+### System Architecture
+![System Architecture](<Achitecture of system.png>)
 
-![Circuit Diagram](circuit%20diagram.png)
+### Circuit Diagram
+![Circuit Diagram](<circuit_diagram.jpg>)
+
+---
+
+### 🔗 Demo Video
+
+[![ESP2Cloud Demo](https://img.youtube.com/vi/-VB3qaSfYBw/0.jpg)](https://youtu.be/-VB3qaSfYBw)  
+📺 Click the image or [watch on YouTube](https://youtu.be/-VB3qaSfYBw)
 
 ---
