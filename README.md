@@ -18,18 +18,19 @@ A complete Internet of Things (IoT) system that collects real-time sensor data f
 
 ## 🔧 System Architecture
 
+
 ```mermaid
 graph LR
-    ESP32[ESP32 (Sensor Data)]
-    Laptop[Laptop (Python TCP Server)]
-    AWS[AWS IoT Core (MQTT over TLS)]
-    DB[AWS Timestream (Time-series DB)]
-    Grafana[Grafana (Visualization)]
+    ESP32["ESP32 (Sensor Data)"]
+    Laptop["Laptop (Python TCP Server)"]
+    AWS["AWS IoT Core (MQTT over TLS)"]
+    DB["AWS Timestream (Time-series DB)"]
+    Grafana["Grafana (Visualization)"]
 
-    ESP32 -- TCP Socket --> Laptop
-    Laptop -- MQTT + TLS --> AWS
-    AWS -- Rule --> DB
-    DB -- Query --> Grafana
+    ESP32 -->|TCP Socket| Laptop
+    Laptop -->|MQTT + TLS| AWS
+    AWS -->|Rule| DB
+    DB -->|Query| Grafana
 ```
 
 ---
